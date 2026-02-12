@@ -1,0 +1,68 @@
+/**
+ * Theme Toggle - Wrapper Styles
+ * Animation CSS is loaded from jsDelivr CDN per toggle type.
+ * This file handles the button wrapper, colors, and hover states.
+ */
+
+/* == CSS Variables (defaults) == */
+.bep-theme-toggle {
+    --tt-size: 1.5rem;
+    --tt-padding: 8px;
+    --tt-radius: 8px;
+    --tt-bg: transparent;
+    --tt-hover-bg: rgba(0, 0, 0, 0.05);
+    --tt-light-color: #1a1a2e;
+    --tt-dark-color: #f0f0f0;
+    --tt-duration: 500ms;
+}
+
+/* == Button Reset & Base == */
+.bep-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: var(--tt-bg);
+    padding: var(--tt-padding);
+    border-radius: var(--tt-radius);
+    cursor: pointer;
+    color: var(--tt-light-color);
+    font-size: var(--tt-size);
+    line-height: 1;
+    transition: background 0.2s ease, color 0.2s ease;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bep-theme-toggle:hover {
+    background: var(--tt-hover-bg);
+}
+
+.bep-theme-toggle:focus-visible {
+    box-shadow: 0 0 0 2px var(--tt-light-color);
+}
+
+/* == SVG sizing == */
+.bep-theme-toggle svg {
+    width: var(--tt-size);
+    height: var(--tt-size);
+    display: block;
+}
+
+/* == Override animation duration == */
+.bep-theme-toggle svg {
+    --theme-toggle__duration: var(--tt-duration);
+}
+
+/* == Dark mode color switch == */
+html.cf-theme-dark .bep-theme-toggle {
+    color: var(--tt-dark-color);
+}
+
+html.cf-theme-dark .bep-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+html.cf-theme-dark .bep-theme-toggle:focus-visible {
+    box-shadow: 0 0 0 2px var(--tt-dark-color);
+}

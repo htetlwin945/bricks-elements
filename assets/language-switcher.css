@@ -1,0 +1,186 @@
+/**
+ * Language Switcher Styles
+ * Uses CSS variables for Bricks control integration
+ */
+
+/* == CSS Variables (defaults) == */
+.bep-lang-switcher {
+    --ls-direction: row;
+    --ls-gap: 8px;
+    --ls-flag-size: 24px;
+    --ls-flag-radius: 50%;
+    --ls-flag-border: none;
+    --ls-item-padding: 6px 12px;
+    --ls-item-bg: transparent;
+    --ls-item-hover-bg: rgba(0, 0, 0, 0.05);
+    --ls-text-color: inherit;
+    --ls-hover-text-color: inherit;
+    --ls-font-size: 14px;
+    --ls-item-radius: 6px;
+    --ls-active-color: #0ea5e9;
+    --ls-dropdown-bg: #ffffff;
+    --ls-dropdown-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --ls-dropdown-padding: 4px;
+    --ls-dropdown-radius: 8px;
+}
+
+/* == Inline Layout == */
+.bep-lang-switcher {
+    display: flex;
+    flex-direction: var(--ls-direction);
+    gap: var(--ls-gap);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* == Language Item == */
+.bep-lang-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: var(--ls-item-padding);
+    background: var(--ls-item-bg);
+    color: var(--ls-text-color);
+    font-size: var(--ls-font-size);
+    text-decoration: none;
+    border-radius: var(--ls-item-radius);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    line-height: 1.2;
+    position: relative;
+}
+
+.bep-lang-item:hover {
+    background: var(--ls-item-hover-bg);
+    color: var(--ls-hover-text-color);
+}
+
+/* == Flag == */
+.bep-lang-flag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.bep-lang-flag img {
+    width: var(--ls-flag-size);
+    height: var(--ls-flag-size);
+    border-radius: var(--ls-flag-radius);
+    border: var(--ls-flag-border);
+    object-fit: cover;
+    display: block;
+}
+
+/* == Name == */
+.bep-lang-name {
+    white-space: nowrap;
+}
+
+/* == Active Indicators == */
+
+/* Underline */
+[data-active-style="underline"] .bep-lang-active {
+    border-bottom: 2px solid var(--ls-active-color);
+    border-radius: 0;
+    padding-bottom: calc(var(--ls-item-padding) - 2px);
+}
+
+/* Background */
+[data-active-style="background"] .bep-lang-active {
+    background: var(--ls-active-color);
+    color: #ffffff;
+}
+
+[data-active-style="background"] .bep-lang-active:hover {
+    background: var(--ls-active-color);
+    color: #ffffff;
+    opacity: 0.9;
+}
+
+/* Border */
+[data-active-style="border"] .bep-lang-active {
+    box-shadow: inset 0 0 0 2px var(--ls-active-color);
+}
+
+/* Bold */
+[data-active-style="bold"] .bep-lang-active .bep-lang-name {
+    font-weight: 700;
+}
+
+/* == Dropdown Mode == */
+.bep-lang-dropdown {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.bep-lang-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: var(--ls-item-padding);
+    border-radius: var(--ls-item-radius);
+    transition: background 0.2s ease;
+}
+
+.bep-lang-trigger:hover {
+    background: var(--ls-item-hover-bg);
+}
+
+.bep-lang-trigger .bep-lang-item {
+    padding: 0;
+}
+
+.bep-lang-trigger .bep-lang-item:hover {
+    background: transparent;
+}
+
+.bep-lang-chevron {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.bep-lang-dropdown:hover .bep-lang-chevron {
+    transform: rotate(180deg);
+}
+
+.bep-lang-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 100%;
+    background: var(--ls-dropdown-bg);
+    box-shadow: var(--ls-dropdown-shadow);
+    border-radius: var(--ls-dropdown-radius);
+    padding: var(--ls-dropdown-padding);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: all 0.2s ease;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.bep-lang-dropdown:hover .bep-lang-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.bep-lang-dropdown-menu .bep-lang-item {
+    width: 100%;
+}
+
+/* == Notice (no Polylang) == */
+.bep-lang-switcher-notice {
+    padding: 12px 16px;
+    background: #fef3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    font-size: 13px;
+}

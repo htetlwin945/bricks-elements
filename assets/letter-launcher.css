@@ -1,0 +1,43 @@
+/* Letter Launcher Styles - GSAP Version */
+
+.letter-launcher-wrapper {
+    display: block;
+}
+
+.letter-launcher-text {
+    display: inline;
+    margin: 0;
+}
+
+.ll-before,
+.ll-after {
+    display: inline;
+}
+
+/* Phrases wrapper */
+.ll-phrases-wrapper {
+    display: inline-block;
+    position: relative;
+    vertical-align: baseline;
+}
+
+/* All phrases stack absolutely */
+.ll-phrase {
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    visibility: hidden;
+}
+
+/* Active phrase */
+.ll-phrase.is-active {
+    position: relative;
+    visibility: visible;
+}
+
+/* SplitText generated chars */
+.ll-phrase [style*="display: inline-block"] {
+    will-change: transform, opacity;
+}

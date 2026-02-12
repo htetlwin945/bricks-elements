@@ -1,0 +1,181 @@
+/**
+ * Custom Cursor Styles
+ * Uses CSS variables for Bricks control integration.
+ * Animation CSS is driven by GSAP inline styles.
+ */
+
+/* == CSS Variables (defaults) == */
+.bep-custom-cursor-wrapper {
+    --cc-dot-size: 8px;
+    --cc-ring-size: 40px;
+    --cc-ring-width: 2px;
+    --cc-dot-color: #000000;
+    --cc-ring-color: rgba(0, 0, 0, 0.4);
+    --cc-dot-hover-color: var(--cc-dot-color);
+    --cc-ring-hover-color: var(--cc-ring-color);
+    --cc-text-color: #ffffff;
+    --cc-text-size: 10px;
+}
+
+/* == Wrapper — invisible container == */
+.bep-custom-cursor-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 2147483647;
+    /* Maximum z-index — above everything including nav menus */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.bep-custom-cursor-wrapper.bep-cursor-visible {
+    opacity: 1;
+}
+
+.bep-custom-cursor-wrapper.bep-cursor-hidden {
+    opacity: 0;
+}
+
+/* == Dot == */
+.bep-cursor-dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--cc-dot-size);
+    height: var(--cc-dot-size);
+    background: var(--cc-dot-color);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2147483647;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+    transition: background-color 0.3s ease;
+}
+
+.bep-cursor-dot.bep-cursor-hover-active {
+    background: var(--cc-dot-hover-color);
+}
+
+/* == Ring == */
+.bep-cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--cc-ring-size);
+    height: var(--cc-ring-size);
+    border: var(--cc-ring-width) solid var(--cc-ring-color);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2147483646;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    background: transparent;
+}
+
+.bep-cursor-ring.bep-cursor-hover-active {
+    border-color: var(--cc-ring-hover-color);
+}
+
+/* == Mix Blend Mode ==
+ * When enabled, both dot and ring get mix-blend-mode: difference
+ * with white fill so they invert over any background color.
+ * Per-section control: add data-cursor-blend="exclusion" on any container
+ * to override the blend mode for that section.
+ */
+.bep-cursor-dot.bep-cursor-blend {
+    mix-blend-mode: difference;
+    background: white !important;
+}
+
+.bep-cursor-ring.bep-cursor-blend {
+    mix-blend-mode: difference;
+    background: white;
+    border-color: white;
+}
+
+.bep-cursor-ring.bep-cursor-blend.bep-cursor-hover-active {
+    border-color: white;
+    background: white;
+}
+
+.bep-cursor-dot.bep-cursor-blend.bep-cursor-hover-active {
+    background: white !important;
+}
+
+/* == Text Label == */
+.bep-cursor-text {
+    font-size: var(--cc-text-size);
+    color: var(--cc-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.bep-cursor-text.bep-cursor-text-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* == Magnetic elements need will-change for smooth transforms == */
+[data-cursor-magnetic] {
+    will-change: transform;
+    transition: transform 0.15s ease;
+}
+
+/* == Hide on touch devices == */
+@media (hover: none) {
+    .bep-custom-cursor-wrapper {
+        display: none !important;
+    }
+}
+
+/* == Bricks editor preview — show static placeholder == */
+.bricks-builder-iframe .bep-custom-cursor-wrapper {
+    position: relative;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    z-index: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f5f5f5;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #666;
+}
+
+.bricks-builder-iframe .bep-cursor-dot,
+.bricks-builder-iframe .bep-cursor-ring {
+    position: static;
+    transform: none;
+    z-index: auto;
+}
+
+.bricks-builder-iframe .bep-cursor-dot {
+    flex-shrink: 0;
+}
+
+.bricks-builder-iframe .bep-cursor-ring {
+    flex-shrink: 0;
+}
+
+.bricks-builder-iframe .bep-cursor-text {
+    opacity: 1;
+    transform: none;
+    position: static;
+}

@@ -1,0 +1,23 @@
+/* Dark Mode Image Element Styles */
+.dark-mode-image-wrapper {
+    display: inline-block;
+    line-height: 0;
+    /* Remove extra space below images */
+}
+
+.dark-mode-image-wrapper img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Light image visible by default, dark hidden */
+.dark-mode-image-wrapper .dm-light {
+    display: block;
+}
+
+.dark-mode-image-wrapper .dm-dark {
+    display: none;
+}
+
+/* Dark mode activated (CoreFramework default class) */
+/* Note: The inline style handles dynamic class names */

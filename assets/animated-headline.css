@@ -1,0 +1,121 @@
+/* Animated Headline Styles - GSAP Version 1.3.2 */
+
+.animated-headline-wrapper {
+    display: block;
+}
+
+.animated-headline-wrapper a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.animated-headline-text {
+    display: inline;
+    margin: 0;
+}
+
+.ah-before {
+    display: inline-block;
+    vertical-align: bottom;
+    /* Match Elementor alignment */
+    margin-right: 0.3em;
+    /* Add space between before text and rotating text */
+}
+
+.ah-after {
+    display: inline-block;
+    vertical-align: bottom;
+    /* Match Elementor alignment */
+    margin-left: 0.3em;
+    /* Add space between rotating text and after text */
+}
+
+/* Phrases wrapper */
+.ah-phrases-wrapper {
+    display: inline-block;
+    position: relative;
+    vertical-align: bottom;
+    /* Match Elementor alignment */
+}
+
+/* All phrases stack absolutely */
+.ah-phrase {
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    visibility: hidden;
+    opacity: 0;
+    line-height: 1;
+    /* Ensure consistent height */
+}
+
+/* Active phrase */
+.ah-phrase.is-active {
+    position: relative;
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Character spans for letter animations */
+.ah-char {
+    display: inline-block;
+    line-height: inherit;
+    /* Inherit parent line-height */
+}
+
+/* Typing cursor */
+.ah-cursor {
+    display: inline-block;
+    animation: blink 0.7s infinite;
+    font-weight: 100;
+    margin-left: 2px;
+    vertical-align: bottom;
+}
+
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Clip animation needs overflow hidden */
+[data-animation="clip"] .ah-phrase {
+    clip-path: inset(0 100% 0 0);
+}
+
+[data-animation="clip"] .ah-phrase.is-active {
+    clip-path: inset(0 0% 0 0);
+}
+
+/* Flip needs perspective */
+[data-animation="flip"] .ah-phrases-wrapper,
+[data-animation="blinds"] .ah-phrases-wrapper {
+    perspective: 300px;
+}
+
+[data-animation="flip"] .ah-phrase,
+[data-animation="blinds"] .ah-phrase {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
+
+/* Blinds chars need 3D and initial state */
+[data-animation="blinds"] .ah-char {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+    opacity: 0;
+}
+
+[data-animation="blinds"] .ah-phrases-wrapper {
+    overflow: hidden;
+}

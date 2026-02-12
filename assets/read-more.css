@@ -1,0 +1,48 @@
+/* Read More Element Styles */
+.read-more-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.read-more-content-wrapper {
+    position: relative;
+    /* transition handled inline for dynamic duration */
+    will-change: height;
+}
+
+.read-more-inner-content {
+    /* Ensure content takes up space cleanly */
+    display: block;
+}
+
+.read-more-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Default height if not set by control */
+    height: 80px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--overlay-color, #ffffff));
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.read-more-container.is-expanded .read-more-overlay {
+    opacity: 0;
+}
+
+.read-more-toggle {
+    cursor: pointer;
+    background: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.read-more-toggle:hover {
+    filter: brightness(110%);
+}
