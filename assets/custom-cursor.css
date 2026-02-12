@@ -1,12 +1,8 @@
 /**
  * Custom Cursor Styles
- *
- * ARCHITECTURE: Dot and ring are moved to <body> by JS (not inside wrapper).
- * This allows mix-blend-mode to composite against page content instead of
- * being isolated inside a stacking context.
- *
- * Visibility is controlled via the visibility property (not opacity)
- * to avoid creating compositing layers that isolate blend mode.
+ * Uses CSS variables for Bricks control integration.
+ * Centering is handled by GSAP (xPercent/yPercent), not CSS transforms.
+ * Scaling uses width/height animation for crisp rendering (no transform blur).
  */
 
 /* == CSS Variables (defaults) == */
@@ -22,9 +18,31 @@
     --cc-text-size: 10px;
 }
 
-/* == Dot — direct child of <body>, position: fixed ==
- * No wrapper isolation → mix-blend-mode works against page content.
- * Centering handled by GSAP xPercent/yPercent.
+/* == Wrapper — invisible container, appended to body by JS == */
+.bep-custom-cursor-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 2147483647;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.bep-custom-cursor-wrapper.bep-cursor-visible {
+    opacity: 1;
+}
+
+.bep-custom-cursor-wrapper.bep-cursor-hidden {
+    opacity: 0;
+}
+
+/* == Dot ==
+ * No CSS transform here — GSAP sets xPercent:-50, yPercent:-50
+ * for centering, plus x/y for position. This prevents transform conflicts.
+ * Width/height are animated by GSAP for crisp hover scaling.
  */
 .bep-cursor-dot {
     position: fixed;
@@ -36,7 +54,7 @@
     border-radius: 50%;
     pointer-events: none;
     z-index: 2147483647;
-    visibility: hidden;
+    will-change: transform, width, height;
     transition: background-color 0.3s ease;
 }
 
@@ -44,7 +62,7 @@
     background: var(--cc-dot-hover-color);
 }
 
-/* == Ring — direct child of <body> == */
+/* == Ring == */
 .bep-cursor-ring {
     position: fixed;
     top: 0;
@@ -55,7 +73,7 @@
     border-radius: 50%;
     pointer-events: none;
     z-index: 2147483646;
-    visibility: hidden;
+    will-change: transform, width, height;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,14 +85,10 @@
     border-color: var(--cc-ring-hover-color);
 }
 
-/* == Mix Blend Mode ==
- * Because dot/ring are direct body children (no wrapper isolation),
- * mix-blend-mode now correctly composites against actual page content.
- * White background is required for the inversion effect to be visible.
- */
+/* == Mix Blend Mode == */
 .bep-cursor-dot.bep-cursor-blend {
     mix-blend-mode: difference;
-    background: white;
+    background: white !important;
 }
 
 .bep-cursor-ring.bep-cursor-blend {
@@ -89,7 +103,7 @@
 }
 
 .bep-cursor-dot.bep-cursor-blend.bep-cursor-hover-active {
-    background: white;
+    background: white !important;
 }
 
 /* == Text Label == */
@@ -119,9 +133,6 @@
 
 /* == Hide on touch devices == */
 @media (hover: none) {
-
-    .bep-cursor-dot,
-    .bep-cursor-ring,
     .bep-custom-cursor-wrapper {
         display: none !important;
     }
@@ -129,11 +140,12 @@
 
 /* == Bricks editor preview — show static placeholder == */
 .bricks-builder-iframe .bep-custom-cursor-wrapper {
-    display: inline-flex !important;
     position: relative;
     width: auto;
     height: auto;
+    opacity: 1;
     z-index: auto;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 12px 16px;
@@ -147,9 +159,15 @@
 .bricks-builder-iframe .bep-cursor-dot,
 .bricks-builder-iframe .bep-cursor-ring {
     position: static;
-    visibility: visible;
     transform: none;
     z-index: auto;
+}
+
+.bricks-builder-iframe .bep-cursor-dot {
+    flex-shrink: 0;
+}
+
+.bricks-builder-iframe .bep-cursor-ring {
     flex-shrink: 0;
 }
 
