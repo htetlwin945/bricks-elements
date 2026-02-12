@@ -369,26 +369,67 @@
         });
         observer.observe(document.body, { childList: true, subtree: true });
 
-        // === Mix Blend Mode — per-section override ===
-        if (config.blendMode) {
-            document.addEventListener('mousemove', function (e) {
-                var target = e.target;
-                var blendEl = target.closest ? target.closest('[data-cursor-blend]') : null;
+        // === Mix Blend Mode — per-element/section control ===
+        // Works INDEPENDENTLY of the global blend checkbox.
+        // data-cursor-blend="difference|exclusion|normal" on any element or ancestor.
+        // The global blendMode checkbox controls the DEFAULT (always-on) blend.
+        // data-cursor-blend overrides blend for specific sections.
+        var blendActive = false; // tracks if per-section blend is currently active
 
-                if (blendEl) {
-                    var mode = blendEl.getAttribute('data-cursor-blend') || 'difference';
-                    if (hasRing) ring.style.mixBlendMode = mode;
-                    if (hasDot) dot.style.mixBlendMode = mode;
-                } else {
-                    if (hasRing && ring.classList.contains('bep-cursor-blend')) {
-                        ring.style.mixBlendMode = '';
+        document.addEventListener('mousemove', function (e) {
+            var target = e.target;
+            var blendEl = target.closest ? target.closest('[data-cursor-blend]') : null;
+
+            if (blendEl) {
+                var mode = blendEl.getAttribute('data-cursor-blend') || 'difference';
+
+                if (mode === 'normal' || mode === 'none') {
+                    // Explicitly disable blend for this section
+                    if (hasDot) {
+                        dot.style.mixBlendMode = 'normal';
+                        if (!dot.classList.contains('bep-cursor-blend')) {
+                            dot.style.removeProperty('background');
+                        }
                     }
-                    if (hasDot && dot.classList.contains('bep-cursor-blend')) {
-                        dot.style.mixBlendMode = '';
+                    if (hasRing) {
+                        ring.style.mixBlendMode = 'normal';
+                        if (!ring.classList.contains('bep-cursor-blend')) {
+                            ring.style.removeProperty('background');
+                        }
+                    }
+                    blendActive = false;
+                } else {
+                    // Apply blend mode + white background (required for blend visibility)
+                    if (hasDot) {
+                        dot.style.mixBlendMode = mode;
+                        dot.style.setProperty('background', 'white', 'important');
+                    }
+                    if (hasRing) {
+                        ring.style.mixBlendMode = mode;
+                        ring.style.setProperty('background', 'white', 'important');
+                        ring.style.borderColor = 'white';
+                    }
+                    blendActive = true;
+                }
+            } else if (blendActive) {
+                // Left the data-cursor-blend area — reset to defaults
+                blendActive = false;
+
+                if (hasDot) {
+                    dot.style.mixBlendMode = '';
+                    if (!dot.classList.contains('bep-cursor-blend')) {
+                        dot.style.removeProperty('background');
                     }
                 }
-            });
-        }
+                if (hasRing) {
+                    ring.style.mixBlendMode = '';
+                    ring.style.borderColor = '';
+                    if (!ring.classList.contains('bep-cursor-blend')) {
+                        ring.style.removeProperty('background');
+                    }
+                }
+            }
+        });
 
         // === Click Effect ===
         if (config.clickEffect) {
