@@ -158,13 +158,13 @@
 
         function onDataCursorEnter(e) {
             isHovering = true;
-            isScaled = true;
 
             var el = e.currentTarget;
             var dataCursor = el.getAttribute('data-cursor');
             var customColor = null;
             var customText = null;
-            var customScale = hoverScale;
+            var customScale = null; // null = don't scale (only scale if explicitly set)
+            var hasScaleKey = false;
 
             // Parse data-cursor attribute
             if (dataCursor) {
@@ -174,26 +174,44 @@
                     var val = kv.slice(1).join(':').trim();
                     if (key === 'text' && val) customText = val;
                     if (key === 'color' && val) customColor = val;
-                    if (key === 'scale' && val) customScale = parseFloat(val) || hoverScale;
+                    if (key === 'scale') {
+                        hasScaleKey = true;
+                        customScale = parseFloat(val) || hoverScale;
+                    }
                 });
             }
 
-            // Scale cursor (width/height animation — crisp, not blurry)
-            scaleCursor(customScale);
-
-            // Hover colors
-            if (hasRing) ring.classList.add('bep-cursor-hover-active');
-            if (hasDot) dot.classList.add('bep-cursor-hover-active');
+            // Only scale if explicitly requested via scale:X
+            if (hasScaleKey && customScale !== null) {
+                isScaled = true;
+                scaleCursor(customScale);
+            }
 
             // Per-element color override
             if (customColor) {
+                // If blend mode is active, temporarily disable it so color shows
+                if (hasDot && dot.classList.contains('bep-cursor-blend')) {
+                    dot.classList.remove('bep-cursor-blend');
+                    dot._bepBlendRemoved = true;
+                }
+                if (hasRing && ring.classList.contains('bep-cursor-blend')) {
+                    ring.classList.remove('bep-cursor-blend');
+                    ring._bepBlendRemoved = true;
+                }
+
                 if (hasRing) {
                     ring.style.borderColor = customColor;
                     ring.style.backgroundColor = customColor;
                 }
                 if (hasDot) {
-                    dot.style.backgroundColor = customColor;
+                    dot.style.setProperty('background', customColor, 'important');
                 }
+            }
+
+            // Hover color classes (only if no custom color)
+            if (!customColor) {
+                if (hasRing) ring.classList.add('bep-cursor-hover-active');
+                if (hasDot) dot.classList.add('bep-cursor-hover-active');
             }
 
             // Text label
@@ -242,7 +260,18 @@
             }
             if (hasDot) {
                 dot.classList.remove('bep-cursor-hover-active');
+                dot.style.removeProperty('background');
                 dot.style.backgroundColor = '';
+            }
+
+            // Restore blend mode class if it was temporarily removed
+            if (hasDot && dot._bepBlendRemoved) {
+                dot.classList.add('bep-cursor-blend');
+                dot._bepBlendRemoved = false;
+            }
+            if (hasRing && ring._bepBlendRemoved) {
+                ring.classList.add('bep-cursor-blend');
+                ring._bepBlendRemoved = false;
             }
 
             // Hide text
