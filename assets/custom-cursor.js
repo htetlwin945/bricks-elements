@@ -3,8 +3,9 @@
  * Smooth follower cursor with hover effects, magnetic pull, text labels, and click animation.
  *
  * Per-element attributes:
- *   data-cursor="text:Read More"       → show text label
- *   data-cursor="color:#ff0000"        → change cursor color
+ *   data-cursor="text:Read More"       → show text label + scale cursor
+ *   data-cursor="color:#ff0000"        → change cursor color + scale
+ *   data-cursor="scale:2"             → custom scale factor
  *   data-cursor="text:Drag,color:#0f0" → combine multiple
  *   data-cursor-magnetic               → enable magnetic pull on this element
  *   data-cursor-blend="exclusion"      → override blend mode for sections
@@ -23,6 +24,13 @@
             return;
         }
 
+        // === CRITICAL: Move wrapper to body to escape all stacking contexts ===
+        // This fixes the cursor disappearing behind headers, navs, modals, etc.
+        // Bricks layouts often create stacking contexts that trap z-index.
+        if (wrapper.parentElement !== document.body) {
+            document.body.appendChild(wrapper);
+        }
+
         var config;
         try {
             config = JSON.parse(wrapper.getAttribute('data-cursor-config'));
@@ -37,12 +45,21 @@
         var hasDot = !!dot;
         var hasRing = !!ring;
 
-        // Hide native cursor globally — force on ALL elements to prevent conflicts with
-        // Bricks nav menus and other components that set their own cursor styles
+        // Hide native cursor globally
         var globalStyle = document.createElement('style');
         globalStyle.id = 'bep-cursor-hide-native';
         globalStyle.textContent = '*, *::before, *::after { cursor: none !important; }';
         document.head.appendChild(globalStyle);
+
+        // Store original sizes for crisp width/height animation (no transform scale blur)
+        var dotBaseSize = hasDot ? dot.offsetWidth : 0;
+        var ringBaseSize = hasRing ? ring.offsetWidth : 0;
+        var ringBaseBorder = hasRing ? parseFloat(getComputedStyle(ring).borderWidth) : 0;
+
+        // Initialize GSAP centering — replaces CSS transform: translate(-50%, -50%)
+        // This prevents GSAP x/y from clobbering the centering transform
+        if (hasDot) gsap.set(dot, { xPercent: -50, yPercent: -50 });
+        if (hasRing) gsap.set(ring, { xPercent: -50, yPercent: -50 });
 
         // GSAP quickTo for smooth following
         var speed = config.followSpeed || 0.2;
@@ -75,48 +92,94 @@
         // === Hover Effects ===
         var hoverScale = config.hoverScale || 1.5;
         var isHovering = false;
+        var isScaled = false;
         var boundElements = new WeakSet();
 
-        function getScaleTarget() {
-            // In dot-only mode, scale the dot UP. In ring/dot-ring, scale ring up and dot down.
-            return cursorStyle;
+        /**
+         * Scale cursor using width/height instead of transform: scale()
+         * This eliminates the blurry "zoom" effect on small elements.
+         * The browser re-rasterizes at the new pixel size = always crisp.
+         */
+        function scaleCursor(scale, duration) {
+            duration = duration || 0.3;
+
+            if (cursorStyle === 'dot') {
+                // Dot-only: grow the dot
+                if (hasDot) {
+                    gsap.to(dot, {
+                        width: dotBaseSize * scale,
+                        height: dotBaseSize * scale,
+                        duration: duration,
+                        ease: 'power2.out'
+                    });
+                }
+            } else {
+                // Ring or Dot+Ring: grow ring, shrink dot
+                if (hasRing) {
+                    gsap.to(ring, {
+                        width: ringBaseSize * scale,
+                        height: ringBaseSize * scale,
+                        duration: duration,
+                        ease: 'power2.out'
+                    });
+                }
+                if (hasDot && scale > 1) {
+                    // Shrink dot when ring grows
+                    gsap.to(dot, {
+                        width: dotBaseSize * 0.5,
+                        height: dotBaseSize * 0.5,
+                        duration: duration,
+                        ease: 'power2.out'
+                    });
+                }
+            }
         }
 
-        function onHoverEnter(e) {
+        function resetCursorSize(duration) {
+            duration = duration || 0.3;
+
+            if (hasDot) {
+                gsap.to(dot, {
+                    width: dotBaseSize,
+                    height: dotBaseSize,
+                    duration: duration,
+                    ease: 'power2.out'
+                });
+            }
+            if (hasRing) {
+                gsap.to(ring, {
+                    width: ringBaseSize,
+                    height: ringBaseSize,
+                    duration: duration,
+                    ease: 'power2.out'
+                });
+            }
+        }
+
+        function onDataCursorEnter(e) {
             isHovering = true;
+            isScaled = true;
 
             var el = e.currentTarget;
             var dataCursor = el.getAttribute('data-cursor');
             var customColor = null;
             var customText = null;
+            var customScale = hoverScale;
 
             // Parse data-cursor attribute
             if (dataCursor) {
                 dataCursor.split(',').forEach(function (part) {
                     var kv = part.trim().split(':');
                     var key = kv[0] ? kv[0].trim() : '';
-                    var val = kv.slice(1).join(':').trim(); // rejoin in case color has ':'
+                    var val = kv.slice(1).join(':').trim();
                     if (key === 'text' && val) customText = val;
                     if (key === 'color' && val) customColor = val;
+                    if (key === 'scale' && val) customScale = parseFloat(val) || hoverScale;
                 });
             }
 
-            var style = getScaleTarget();
-
-            if (style === 'dot') {
-                // Dot-only: scale the dot UP
-                if (hasDot) {
-                    gsap.to(dot, { scale: hoverScale, duration: 0.3, ease: 'power2.out' });
-                }
-            } else {
-                // Ring or Dot+Ring: scale ring up, dot down
-                if (hasRing) {
-                    gsap.to(ring, { scale: hoverScale, duration: 0.3, ease: 'power2.out' });
-                }
-                if (hasDot) {
-                    gsap.to(dot, { scale: 0.5, duration: 0.3, ease: 'power2.out' });
-                }
-            }
+            // Scale cursor (width/height animation — crisp, not blurry)
+            scaleCursor(customScale);
 
             // Hover colors
             if (hasRing) ring.classList.add('bep-cursor-hover-active');
@@ -138,10 +201,21 @@
                 textEl.textContent = customText || config.hoverTextContent || 'View';
                 textEl.classList.add('bep-cursor-text-visible');
 
-                // When showing text, fill the ring
                 if (hasRing && !ring.classList.contains('bep-cursor-blend')) {
                     ring.style.backgroundColor = customColor || 'var(--cc-ring-color)';
                 }
+            }
+        }
+
+        function onHoverEnter(e) {
+            // Basic hover: just flag it (no scaling for generic hover targets)
+            isHovering = true;
+
+            // Check if element also has data-cursor
+            var el = e.currentTarget;
+            if (el.hasAttribute('data-cursor')) {
+                onDataCursorEnter(e);
+                return;
             }
 
             // Hide cursor if data-cursor-hide is set
@@ -154,14 +228,10 @@
             isHovering = false;
             var el = e.currentTarget;
 
-            var style = getScaleTarget();
-
-            // Reset scales
-            if (style === 'dot') {
-                if (hasDot) gsap.to(dot, { scale: 1, duration: 0.3, ease: 'power2.out' });
-            } else {
-                if (hasRing) gsap.to(ring, { scale: 1, duration: 0.3, ease: 'power2.out' });
-                if (hasDot) gsap.to(dot, { scale: 1, duration: 0.3, ease: 'power2.out' });
+            // Reset size if it was scaled
+            if (isScaled) {
+                resetCursorSize();
+                isScaled = false;
             }
 
             // Remove hover state
@@ -183,7 +253,7 @@
             // Un-hide
             wrapper.classList.remove('bep-cursor-hidden');
 
-            // Reset magnetic on the element itself
+            // Reset magnetic on the element
             if (el.hasAttribute('data-cursor-magnetic')) {
                 gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
             }
@@ -206,6 +276,7 @@
 
         function bindHoverTargets() {
             try {
+                // Bind generic hover targets (cursor: none only, no scaling)
                 var targets = document.querySelectorAll(targetSelector);
                 targets.forEach(function (el) {
                     if (el.closest('.bep-custom-cursor-wrapper')) return;
@@ -217,30 +288,51 @@
                 });
             } catch (e) { /* invalid selector */ }
 
-            // Magnetic: only elements with data-cursor-magnetic attribute
-            if (config.magneticEnabled) {
-                var magneticEls = document.querySelectorAll('[data-cursor-magnetic]');
-                magneticEls.forEach(function (el) {
-                    if (boundElements.has(el)) return; // already bound as hover
-                    boundElements.add(el);
+            // Bind data-cursor elements that aren't already hover targets
+            var dataCursorEls = document.querySelectorAll('[data-cursor]');
+            dataCursorEls.forEach(function (el) {
+                if (el.closest('.bep-custom-cursor-wrapper')) return;
+                if (boundElements.has(el)) return;
+                boundElements.add(el);
 
-                    // Also bind hover if not already targeted
-                    el.addEventListener('mouseenter', onHoverEnter);
-                    el.addEventListener('mouseleave', onHoverLeave);
+                el.addEventListener('mouseenter', onDataCursorEnter);
+                el.addEventListener('mouseleave', onHoverLeave);
+            });
+
+            // Bind data-cursor-hide elements
+            var hideEls = document.querySelectorAll('[data-cursor-hide]');
+            hideEls.forEach(function (el) {
+                if (boundElements.has(el)) return;
+                boundElements.add(el);
+
+                el.addEventListener('mouseenter', function () {
+                    wrapper.classList.add('bep-cursor-hidden');
                 });
+                el.addEventListener('mouseleave', function () {
+                    wrapper.classList.remove('bep-cursor-hidden');
+                });
+            });
 
-                // Bind magnetic move separately (needs to run on all magnetic elements)
+            // Magnetic: only elements with data-cursor-magnetic
+            if (config.magneticEnabled) {
                 document.querySelectorAll('[data-cursor-magnetic]').forEach(function (el) {
                     if (el._bepMagneticBound) return;
                     el._bepMagneticBound = true;
                     el.addEventListener('mousemove', onMagneticMove);
+
+                    // Also bind hover if not already bound
+                    if (!boundElements.has(el)) {
+                        boundElements.add(el);
+                        el.addEventListener('mouseenter', onHoverEnter);
+                        el.addEventListener('mouseleave', onHoverLeave);
+                    }
                 });
             }
         }
 
         bindHoverTargets();
 
-        // Re-bind on new content (e.g. Bricks infinite scroll, AJAX)
+        // Re-bind on new content (AJAX, infinite scroll)
         var debounceTimer;
         var observer = new MutationObserver(function () {
             clearTimeout(debounceTimer);
@@ -248,11 +340,9 @@
         });
         observer.observe(document.body, { childList: true, subtree: true });
 
-        // === Mix Blend Mode — per-section control ===
-        // Elements with data-cursor-blend="exclusion|difference|normal" override blend mode
+        // === Mix Blend Mode — per-section override ===
         if (config.blendMode) {
             document.addEventListener('mousemove', function (e) {
-                // Find the deepest ancestor with data-cursor-blend
                 var target = e.target;
                 var blendEl = target.closest ? target.closest('[data-cursor-blend]') : null;
 
@@ -261,7 +351,6 @@
                     if (hasRing) ring.style.mixBlendMode = mode;
                     if (hasDot) dot.style.mixBlendMode = mode;
                 } else {
-                    // Default blend mode
                     if (hasRing && ring.classList.contains('bep-cursor-blend')) {
                         ring.style.mixBlendMode = '';
                     }
@@ -275,22 +364,30 @@
         // === Click Effect ===
         if (config.clickEffect) {
             document.addEventListener('mousedown', function () {
-                var style = getScaleTarget();
-                if (style === 'dot') {
-                    if (hasDot) gsap.to(dot, { scale: isHovering ? hoverScale * 0.7 : 0.6, duration: 0.15, ease: 'power3.out' });
+                if (cursorStyle === 'dot') {
+                    if (hasDot) {
+                        var currentDotW = dot.offsetWidth;
+                        gsap.to(dot, { width: currentDotW * 0.7, height: currentDotW * 0.7, duration: 0.15, ease: 'power3.out' });
+                    }
                 } else {
-                    if (hasRing) gsap.to(ring, { scale: isHovering ? hoverScale * 0.8 : 0.8, duration: 0.15, ease: 'power3.out' });
-                    if (hasDot) gsap.to(dot, { scale: isHovering ? 0.3 : 0.6, duration: 0.15, ease: 'power3.out' });
+                    if (hasRing) {
+                        var currentRingW = ring.offsetWidth;
+                        gsap.to(ring, { width: currentRingW * 0.85, height: currentRingW * 0.85, duration: 0.15, ease: 'power3.out' });
+                    }
+                    if (hasDot) {
+                        var currentDotW2 = dot.offsetWidth;
+                        gsap.to(dot, { width: currentDotW2 * 0.7, height: currentDotW2 * 0.7, duration: 0.15, ease: 'power3.out' });
+                    }
                 }
             });
 
             document.addEventListener('mouseup', function () {
-                var style = getScaleTarget();
-                if (style === 'dot') {
-                    if (hasDot) gsap.to(dot, { scale: isHovering ? hoverScale : 1, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
+                if (isScaled) {
+                    // Restore to hover size
+                    scaleCursor(hoverScale, 0.4);
                 } else {
-                    if (hasRing) gsap.to(ring, { scale: isHovering ? hoverScale : 1, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
-                    if (hasDot) gsap.to(dot, { scale: isHovering ? 0.5 : 1, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
+                    // Restore to base size
+                    resetCursorSize(0.4);
                 }
             });
         }

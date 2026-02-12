@@ -1,7 +1,8 @@
 /**
  * Custom Cursor Styles
  * Uses CSS variables for Bricks control integration.
- * Animation CSS is driven by GSAP inline styles.
+ * Centering is handled by GSAP (xPercent/yPercent), not CSS transforms.
+ * Scaling uses width/height animation for crisp rendering (no transform blur).
  */
 
 /* == CSS Variables (defaults) == */
@@ -17,7 +18,7 @@
     --cc-text-size: 10px;
 }
 
-/* == Wrapper — invisible container == */
+/* == Wrapper — invisible container, appended to body by JS == */
 .bep-custom-cursor-wrapper {
     position: fixed;
     top: 0;
@@ -25,7 +26,6 @@
     width: 0;
     height: 0;
     z-index: 2147483647;
-    /* Maximum z-index — above everything including nav menus */
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -39,7 +39,11 @@
     opacity: 0;
 }
 
-/* == Dot == */
+/* == Dot ==
+ * No CSS transform here — GSAP sets xPercent:-50, yPercent:-50
+ * for centering, plus x/y for position. This prevents transform conflicts.
+ * Width/height are animated by GSAP for crisp hover scaling.
+ */
 .bep-cursor-dot {
     position: fixed;
     top: 0;
@@ -50,8 +54,7 @@
     border-radius: 50%;
     pointer-events: none;
     z-index: 2147483647;
-    transform: translate(-50%, -50%);
-    will-change: transform;
+    will-change: transform, width, height;
     transition: background-color 0.3s ease;
 }
 
@@ -70,8 +73,7 @@
     border-radius: 50%;
     pointer-events: none;
     z-index: 2147483646;
-    transform: translate(-50%, -50%);
-    will-change: transform;
+    will-change: transform, width, height;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -83,12 +85,7 @@
     border-color: var(--cc-ring-hover-color);
 }
 
-/* == Mix Blend Mode ==
- * When enabled, both dot and ring get mix-blend-mode: difference
- * with white fill so they invert over any background color.
- * Per-section control: add data-cursor-blend="exclusion" on any container
- * to override the blend mode for that section.
- */
+/* == Mix Blend Mode == */
 .bep-cursor-dot.bep-cursor-blend {
     mix-blend-mode: difference;
     background: white !important;
@@ -128,7 +125,7 @@
     transform: scale(1);
 }
 
-/* == Magnetic elements need will-change for smooth transforms == */
+/* == Magnetic elements == */
 [data-cursor-magnetic] {
     will-change: transform;
     transition: transform 0.15s ease;
