@@ -495,7 +495,7 @@
                     isSticky = false;
                     isHovering = false;
 
-                    // Reset size FIRST (before position, so transitions run together)
+                    // Reset size
                     if (isScaled) {
                         resetCursorSize();
                         isScaled = false;
@@ -505,29 +505,8 @@
                     if (hasRing) ring.classList.remove('bep-cursor-hover-active');
                     if (hasDot) dot.classList.remove('bep-cursor-hover-active');
 
-                    // Return cursor to mouse position, then re-sync quickTo so
-                    // normal follow behavior resumes cleanly
-                    if (hasDot) {
-                        gsap.to(dot, {
-                            x: mouse.x, y: mouse.y,
-                            duration: 0.3, ease: 'power3.out', overwrite: 'auto',
-                            onComplete: function () {
-                                // Re-init quickTo so follow resumes from current position
-                                if (dotX) dotX(mouse.x);
-                                if (dotY) dotY(mouse.y);
-                            }
-                        });
-                    }
-                    if (hasRing) {
-                        gsap.to(ring, {
-                            x: mouse.x, y: mouse.y,
-                            duration: 0.4, ease: 'power3.out', overwrite: 'auto',
-                            onComplete: function () {
-                                if (ringX) ringX(mouse.x);
-                                if (ringY) ringY(mouse.y);
-                            }
-                        });
-                    }
+                    // Cursor will naturally return to mouse via the normal
+                    // mousemove quickTo handler (isSticky is now false)
                 });
             });
         }
