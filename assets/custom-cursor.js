@@ -102,37 +102,60 @@
             ringY = gsap.quickTo(ring, 'y', { duration: speed, ease: 'power2.out' });
         }
 
-        // === Skew animation on move ===
+        // === Skew/stretch animation on move ===
+        // Rotates cursor to face movement direction and stretches along that axis
+        // like a droplet: head at mouse tip, tail trails behind.
         var skewEnabled = config.skewEnabled || false;
         var skewStrength = config.skewStrength || 3;
         var prevMouse = { x: 0, y: 0 };
         var velocity = { x: 0, y: 0 };
+        var lastAngle = 0;
 
         if (skewEnabled) {
             gsap.ticker.add(function () {
-                // Calculate velocity from mouse delta
                 var vx = mouse.x - prevMouse.x;
                 var vy = mouse.y - prevMouse.y;
                 prevMouse.x = mouse.x;
                 prevMouse.y = mouse.y;
 
-                // Smooth velocity
-                velocity.x += (vx - velocity.x) * 0.2;
-                velocity.y += (vy - velocity.y) * 0.2;
+                // Smooth velocity for fluid motion
+                velocity.x += (vx - velocity.x) * 0.15;
+                velocity.y += (vy - velocity.y) * 0.15;
 
-                // Calculate skew angle and scale stretch
-                var skewX = velocity.x * skewStrength;
-                var skewY = velocity.y * skewStrength;
+                // Speed magnitude
+                var spd = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
 
-                // Clamp to avoid extreme distortion
-                skewX = Math.max(-30, Math.min(30, skewX));
-                skewY = Math.max(-30, Math.min(30, skewY));
+                // Stretch proportional to speed (clamped)
+                var stretch = 1 + Math.min(spd * skewStrength * 0.04, skewStrength * 0.15);
+                var squeeze = 1 / Math.sqrt(stretch); // Preserve area (width shrinks as length grows)
+
+                // Angle of movement direction
+                if (spd > 0.5) {
+                    lastAngle = Math.atan2(velocity.y, velocity.x) * (180 / Math.PI);
+                }
 
                 if (hasDot) {
-                    gsap.to(dot, { skewX: skewX, skewY: -skewY, duration: 0.15, ease: 'power2.out', overwrite: 'auto' });
+                    gsap.to(dot, {
+                        rotation: lastAngle,
+                        scaleX: stretch,
+                        scaleY: squeeze,
+                        duration: 0.15,
+                        ease: 'power2.out',
+                        overwrite: 'auto'
+                    });
                 }
                 if (hasRing) {
-                    gsap.to(ring, { skewX: skewX * 0.5, skewY: -skewY * 0.5, duration: 0.2, ease: 'power2.out', overwrite: 'auto' });
+                    // Ring stretches less for a layered trailing feel
+                    var ringStretch = 1 + (stretch - 1) * 0.4;
+                    var ringSqueeze = 1 / Math.sqrt(ringStretch);
+                    gsap.to(ring, {
+                        rotation: lastAngle,
+                        scaleX: ringStretch,
+                        scaleY: ringSqueeze,
+                        duration: 0.2,
+                        ease: 'power2.out',
+                        overwrite: 'auto'
+                    });
                 }
             });
         }
