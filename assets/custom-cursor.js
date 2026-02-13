@@ -522,8 +522,8 @@
 
                 el.addEventListener('mouseenter', function (e) {
                     // Shrink custom cursor instead of hiding instantly
-                    if (hasDot) gsap.to(dot, { scale: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
-                    if (hasRing) gsap.to(ring, { scale: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
+                    if (hasDot) gsap.to(dot, { scale: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+                    if (hasRing) gsap.to(ring, { scale: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
 
                     // Calculate entry point
                     var rect = el.getBoundingClientRect();
@@ -569,11 +569,11 @@
                     // Restore custom cursor size
                     if (shown) {
                         if (hasDot) {
-                            gsap.to(dot, { scale: 1, duration: 0.3, ease: 'power2.out', overwrite: true });
+                            gsap.to(dot, { scale: 1, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
                             dot.classList.add('bep-cursor-visible');
                         }
                         if (hasRing) {
-                            gsap.to(ring, { scale: 1, duration: 0.3, ease: 'power2.out', overwrite: true });
+                            gsap.to(ring, { scale: 1, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
                             ring.classList.add('bep-cursor-visible');
                         }
                     }
