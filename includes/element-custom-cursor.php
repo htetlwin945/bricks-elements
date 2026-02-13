@@ -102,6 +102,15 @@ class Bricks_Custom_Cursor_Element extends \Bricks\Element
             'description' => esc_html__('Creates a dramatic inversion effect over content', 'bricks-elements-pack'),
         ];
 
+        $this->controls['showNativeCursor'] = [
+            'tab' => 'content',
+            'group' => 'cursorStyle',
+            'label' => esc_html__('Show Native Cursor', 'bricks-elements-pack'),
+            'type' => 'checkbox',
+            'default' => false,
+            'description' => esc_html__('Keep the original mouse cursor visible alongside the custom cursor', 'bricks-elements-pack'),
+        ];
+
         $this->controls['followSpeed'] = [
             'tab' => 'content',
             'group' => 'cursorStyle',
@@ -109,6 +118,25 @@ class Bricks_Custom_Cursor_Element extends \Bricks\Element
             'type' => 'text',
             'default' => '0.2',
             'description' => esc_html__('Seconds of lag (lower = faster). Ring always lags more than dot.', 'bricks-elements-pack'),
+        ];
+
+        $this->controls['skewEnabled'] = [
+            'tab' => 'content',
+            'group' => 'cursorStyle',
+            'label' => esc_html__('Skew Animation on Move', 'bricks-elements-pack'),
+            'type' => 'checkbox',
+            'default' => false,
+            'description' => esc_html__('Cursor skews in the direction of movement for a dynamic feel', 'bricks-elements-pack'),
+        ];
+
+        $this->controls['skewStrength'] = [
+            'tab' => 'content',
+            'group' => 'cursorStyle',
+            'label' => esc_html__('Skew Strength', 'bricks-elements-pack'),
+            'type' => 'text',
+            'default' => '3',
+            'description' => esc_html__('Skew intensity (1-10, higher = more dramatic)', 'bricks-elements-pack'),
+            'required' => ['skewEnabled', '!=', ''],
         ];
 
         // === Hover Effects ===
@@ -136,6 +164,15 @@ class Bricks_Custom_Cursor_Element extends \Bricks\Element
             'label' => esc_html__('Click Shrink Effect', 'bricks-elements-pack'),
             'type' => 'checkbox',
             'default' => true,
+        ];
+
+        $this->controls['restoreNativeCursorOnHide'] = [
+            'tab' => 'content',
+            'group' => 'hoverEffects',
+            'label' => esc_html__('Restore Native Cursor on Hidden Elements', 'bricks-elements-pack'),
+            'type' => 'checkbox',
+            'default' => true,
+            'description' => esc_html__('Show the original cursor when hovering elements with data-cursor-hide', 'bricks-elements-pack'),
         ];
 
         $this->controls['hoverText'] = [
@@ -256,10 +293,14 @@ class Bricks_Custom_Cursor_Element extends \Bricks\Element
         $config = [
             'style' => $settings['cursorStyle'] ?? 'dot-ring',
             'blendMode' => !empty($settings['blendMode']),
+            'showNativeCursor' => !empty($settings['showNativeCursor']),
             'followSpeed' => floatval($settings['followSpeed'] ?? 0.2),
+            'skewEnabled' => !empty($settings['skewEnabled']),
+            'skewStrength' => floatval($settings['skewStrength'] ?? 3),
             'hoverTargets' => $settings['hoverTargets'] ?? 'a, button, input[type="submit"], .bep-cursor-hover',
             'hoverScale' => floatval($settings['hoverScale'] ?? 1.5),
             'clickEffect' => !empty($settings['clickEffect']),
+            'restoreNativeCursorOnHide' => !empty($settings['restoreNativeCursorOnHide']),
             'hoverText' => !empty($settings['hoverText']),
             'hoverTextContent' => $settings['hoverTextContent'] ?? 'View',
             'magneticEnabled' => !empty($settings['magneticEnabled']),

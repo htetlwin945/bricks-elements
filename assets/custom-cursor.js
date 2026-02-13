@@ -73,11 +73,13 @@
         // Hide the now-empty wrapper (still in DOM for editor preview)
         wrapper.style.display = 'none';
 
-        // Hide native cursor globally
-        var globalStyle = document.createElement('style');
-        globalStyle.id = 'bep-cursor-hide-native';
-        globalStyle.textContent = '*, *::before, *::after { cursor: none !important; }';
-        document.head.appendChild(globalStyle);
+        // Hide native cursor (unless showNativeCursor is enabled)
+        if (!config.showNativeCursor) {
+            var globalStyle = document.createElement('style');
+            globalStyle.id = 'bep-cursor-hide-native';
+            globalStyle.textContent = '*, *::before, *::after { cursor: none !important; }';
+            document.head.appendChild(globalStyle);
+        }
 
         // Read computed sizes AFTER moving to body (CSS vars applied)
         var dotBaseSize = hasDot ? parseFloat(wrapperCS.getPropertyValue('--cc-dot-size')) || dot.offsetWidth : 0;
@@ -100,9 +102,48 @@
             ringY = gsap.quickTo(ring, 'y', { duration: speed, ease: 'power2.out' });
         }
 
+        // === Skew animation on move ===
+        var skewEnabled = config.skewEnabled || false;
+        var skewStrength = config.skewStrength || 3;
+        var prevMouse = { x: 0, y: 0 };
+        var velocity = { x: 0, y: 0 };
+
+        if (skewEnabled) {
+            gsap.ticker.add(function () {
+                // Calculate velocity from mouse delta
+                var vx = mouse.x - prevMouse.x;
+                var vy = mouse.y - prevMouse.y;
+                prevMouse.x = mouse.x;
+                prevMouse.y = mouse.y;
+
+                // Smooth velocity
+                velocity.x += (vx - velocity.x) * 0.2;
+                velocity.y += (vy - velocity.y) * 0.2;
+
+                // Calculate skew angle and scale stretch
+                var skewX = velocity.x * skewStrength;
+                var skewY = velocity.y * skewStrength;
+
+                // Clamp to avoid extreme distortion
+                skewX = Math.max(-30, Math.min(30, skewX));
+                skewY = Math.max(-30, Math.min(30, skewY));
+
+                if (hasDot) {
+                    gsap.to(dot, { skewX: skewX, skewY: -skewY, duration: 0.15, ease: 'power2.out', overwrite: 'auto' });
+                }
+                if (hasRing) {
+                    gsap.to(ring, { skewX: skewX * 0.5, skewY: -skewY * 0.5, duration: 0.2, ease: 'power2.out', overwrite: 'auto' });
+                }
+            });
+        }
+
+        var mouse = { x: -100, y: -100 };
+
         // Show cursor on first move
         var shown = false;
         document.addEventListener('mousemove', function (e) {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
             if (!shown) {
                 shown = true;
                 if (hasDot) dot.classList.add('bep-cursor-visible');
@@ -321,11 +362,19 @@
                 el.addEventListener('mouseenter', function () {
                     if (hasDot) dot.classList.remove('bep-cursor-visible');
                     if (hasRing) ring.classList.remove('bep-cursor-visible');
+                    // Restore native cursor on this element
+                    if (config.restoreNativeCursorOnHide && !config.showNativeCursor) {
+                        el.style.setProperty('cursor', 'auto', 'important');
+                    }
                 });
                 el.addEventListener('mouseleave', function () {
                     if (shown) {
                         if (hasDot) dot.classList.add('bep-cursor-visible');
                         if (hasRing) ring.classList.add('bep-cursor-visible');
+                    }
+                    // Remove cursor override
+                    if (config.restoreNativeCursorOnHide && !config.showNativeCursor) {
+                        el.style.removeProperty('cursor');
                     }
                 });
             });
