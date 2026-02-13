@@ -84,7 +84,7 @@ add_action('wp_enqueue_scripts', function () {
 
     // Theme Toggle
     wp_register_style('bricks-theme-toggle-css', BRICKS_ELEMENTS_PACK_URL . 'assets/theme-toggle.css', [], '1.0.0');
-    wp_register_script('bricks-theme-toggle-js', BRICKS_ELEMENTS_PACK_URL . 'assets/theme-toggle.js', [], '1.0.0', true);
+    wp_register_script('bricks-theme-toggle-js', BRICKS_ELEMENTS_PACK_URL . 'assets/theme-toggle.js', [], '1.1.0', true);
 
     // Custom Cursor
     wp_register_style('bricks-custom-cursor-css', BRICKS_ELEMENTS_PACK_URL . 'assets/custom-cursor.css', [], '2.3.0');

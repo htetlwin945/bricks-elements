@@ -34,6 +34,17 @@
     }
 
     function init() {
+        // Check localStorage for saved preference
+        var savedTheme = localStorage.getItem(STORAGE_KEY);
+        var html = document.documentElement;
+
+        if (savedTheme === 'true') {
+            html.classList.add('cf-theme-dark');
+        } else if (savedTheme === 'false') {
+            html.classList.remove('cf-theme-dark');
+        }
+        // If no saved preference, we leave it as is (default)
+
         // Sync toggle state with current theme on load
         syncToggles();
 
