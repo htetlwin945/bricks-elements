@@ -452,11 +452,19 @@
                     // Resize cursor to custom size if specified
                     if (stickySize > 0) {
                         isScaled = true;
-                        if (hasRing) {
-                            gsap.to(ring, { width: stickySize, height: stickySize, duration: 0.3, ease: 'power2.out' });
-                        }
-                        if (hasDot) {
-                            gsap.to(dot, { width: dotBaseSize * 0.5, height: dotBaseSize * 0.5, duration: 0.3, ease: 'power2.out' });
+                        if (cursorStyle === 'dot') {
+                            // Dot-only mode: grow the dot itself
+                            if (hasDot) {
+                                gsap.to(dot, { width: stickySize, height: stickySize, duration: 0.3, ease: 'power2.out' });
+                            }
+                        } else {
+                            // Ring modes: grow ring, shrink dot
+                            if (hasRing) {
+                                gsap.to(ring, { width: stickySize, height: stickySize, duration: 0.3, ease: 'power2.out' });
+                            }
+                            if (hasDot) {
+                                gsap.to(dot, { width: dotBaseSize * 0.5, height: dotBaseSize * 0.5, duration: 0.3, ease: 'power2.out' });
+                            }
                         }
                     }
 
@@ -487,15 +495,7 @@
                     isSticky = false;
                     isHovering = false;
 
-                    // Return cursor to mouse position
-                    if (hasDot) {
-                        gsap.to(dot, { x: mouse.x, y: mouse.y, duration: 0.3, ease: 'power3.out', overwrite: 'auto' });
-                    }
-                    if (hasRing) {
-                        gsap.to(ring, { x: mouse.x, y: mouse.y, duration: 0.4, ease: 'power3.out', overwrite: 'auto' });
-                    }
-
-                    // Reset size
+                    // Reset size FIRST (before position, so transitions run together)
                     if (isScaled) {
                         resetCursorSize();
                         isScaled = false;
@@ -504,6 +504,30 @@
                     // Remove hover styling
                     if (hasRing) ring.classList.remove('bep-cursor-hover-active');
                     if (hasDot) dot.classList.remove('bep-cursor-hover-active');
+
+                    // Return cursor to mouse position, then re-sync quickTo so
+                    // normal follow behavior resumes cleanly
+                    if (hasDot) {
+                        gsap.to(dot, {
+                            x: mouse.x, y: mouse.y,
+                            duration: 0.3, ease: 'power3.out', overwrite: 'auto',
+                            onComplete: function () {
+                                // Re-init quickTo so follow resumes from current position
+                                if (dotX) dotX(mouse.x);
+                                if (dotY) dotY(mouse.y);
+                            }
+                        });
+                    }
+                    if (hasRing) {
+                        gsap.to(ring, {
+                            x: mouse.x, y: mouse.y,
+                            duration: 0.4, ease: 'power3.out', overwrite: 'auto',
+                            onComplete: function () {
+                                if (ringX) ringX(mouse.x);
+                                if (ringY) ringY(mouse.y);
+                            }
+                        });
+                    }
                 });
             });
         }
