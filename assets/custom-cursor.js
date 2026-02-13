@@ -212,14 +212,27 @@
         function onHoverEnter(e) {
             isHovering = true;
             var el = e.currentTarget;
+
+            // If element has data-cursor, use the full data-cursor logic
             if (el.hasAttribute('data-cursor')) {
                 onDataCursorEnter(e);
                 return;
             }
+
+            // Hide cursor if data-cursor-hide is set
             if (el.hasAttribute('data-cursor-hide')) {
                 if (hasDot) dot.classList.remove('bep-cursor-visible');
                 if (hasRing) ring.classList.remove('bep-cursor-visible');
+                return;
             }
+
+            // Scale cursor for hover targets (this is the purpose of the hover targets field)
+            isScaled = true;
+            scaleCursor(hoverScale);
+
+            // Apply hover color classes
+            if (hasRing) ring.classList.add('bep-cursor-hover-active');
+            if (hasDot) dot.classList.add('bep-cursor-hover-active');
         }
 
         function onHoverLeave(e) {
