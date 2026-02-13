@@ -205,8 +205,15 @@ class Bricks_Dark_Mode_Image_Element extends \Bricks\Element
 
         // Link wrapper
         if (!empty($link['url'])) {
+            $url = $link['url'];
+
+            // Parse dynamic data (e.g. {site_url})
+            if (strpos($url, '{') !== false && class_exists('\Bricks\Integrations\Dynamic_Data\Providers')) {
+                $url = \Bricks\Integrations\Dynamic_Data\Providers::render_tag($url, $this->post_id, 'link');
+            }
+
             $target = !empty($link['newTab']) ? ' target="_blank"' : '';
-            $output .= '<a href="' . esc_url($link['url']) . '"' . $target . '>';
+            $output .= '<a href="' . esc_url($url) . '"' . $target . '>';
         }
 
         // Light Mode Image
