@@ -441,12 +441,14 @@
                     var stickyVal = el.getAttribute('data-cursor-stick');
                     var stickySize = parseFloat(stickyVal) || 0;
 
-                    // Animate cursor to element center
-                    if (hasDot) {
-                        gsap.to(dot, { x: cx, y: cy, duration: 0.3, ease: 'power3.out', overwrite: 'auto' });
+                    // Animate cursor to element center using quickTo (avoids conflict)
+                    if (hasDot && dotX && dotY) {
+                        dotX(cx);
+                        dotY(cy);
                     }
-                    if (hasRing) {
-                        gsap.to(ring, { x: cx, y: cy, duration: 0.4, ease: 'power3.out', overwrite: 'auto' });
+                    if (hasRing && ringX && ringY) {
+                        ringX(cx);
+                        ringY(cy);
                     }
 
                     // Resize cursor to custom size if specified
@@ -483,11 +485,13 @@
                     var offsetX = (e.clientX - cx) * 0.15;
                     var offsetY = (e.clientY - cy) * 0.15;
 
-                    if (hasDot) {
-                        gsap.to(dot, { x: cx + offsetX, y: cy + offsetY, duration: 0.2, ease: 'power2.out', overwrite: 'auto' });
+                    if (hasDot && dotX && dotY) {
+                        dotX(cx + offsetX);
+                        dotY(cy + offsetY);
                     }
-                    if (hasRing) {
-                        gsap.to(ring, { x: cx + offsetX * 0.6, y: cy + offsetY * 0.6, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+                    if (hasRing && ringX && ringY) {
+                        ringX(cx + offsetX * 0.6);
+                        ringY(cy + offsetY * 0.6);
                     }
                 });
 
