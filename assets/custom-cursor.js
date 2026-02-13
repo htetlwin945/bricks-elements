@@ -172,16 +172,20 @@
                 if (hasDot) dot.classList.add('bep-cursor-visible');
                 if (hasRing) ring.classList.add('bep-cursor-visible');
             }
-            if (dotX) dotX(e.clientX);
-            if (dotY) dotY(e.clientY);
-            if (ringX) ringX(e.clientX);
-            if (ringY) ringY(e.clientY);
+            // Don't override position when sticky is active
+            if (!isSticky) {
+                if (dotX) dotX(e.clientX);
+                if (dotY) dotY(e.clientY);
+                if (ringX) ringX(e.clientX);
+                if (ringY) ringY(e.clientY);
+            }
         });
 
         // === Hover Effects ===
         var hoverScale = config.hoverScale || 1.5;
         var isHovering = false;
         var isScaled = false;
+        var isSticky = false;
         var boundElements = new WeakSet();
 
         function scaleCursor(scale, duration) {
@@ -342,6 +346,11 @@
             if (el.hasAttribute('data-cursor-magnetic')) {
                 gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
             }
+
+            // Unstick
+            if (isSticky) {
+                isSticky = false;
+            }
         }
 
         function onMagneticMove(e) {
@@ -414,6 +423,89 @@
                     }
                 });
             }
+
+            // === Sticky cursor ===
+            document.querySelectorAll('[data-cursor-stick]').forEach(function (el) {
+                if (el._bepStickyBound) return;
+                el._bepStickyBound = true;
+
+                el.addEventListener('mouseenter', function (e) {
+                    isHovering = true;
+                    isSticky = true;
+
+                    var rect = el.getBoundingClientRect();
+                    var cx = rect.left + rect.width / 2;
+                    var cy = rect.top + rect.height / 2;
+
+                    // Parse custom size from attribute (e.g. "80px" or "80")
+                    var stickyVal = el.getAttribute('data-cursor-stick');
+                    var stickySize = parseFloat(stickyVal) || 0;
+
+                    // Animate cursor to element center
+                    if (hasDot) {
+                        gsap.to(dot, { x: cx, y: cy, duration: 0.3, ease: 'power3.out', overwrite: 'auto' });
+                    }
+                    if (hasRing) {
+                        gsap.to(ring, { x: cx, y: cy, duration: 0.4, ease: 'power3.out', overwrite: 'auto' });
+                    }
+
+                    // Resize cursor to custom size if specified
+                    if (stickySize > 0) {
+                        isScaled = true;
+                        if (hasRing) {
+                            gsap.to(ring, { width: stickySize, height: stickySize, duration: 0.3, ease: 'power2.out' });
+                        }
+                        if (hasDot) {
+                            gsap.to(dot, { width: dotBaseSize * 0.5, height: dotBaseSize * 0.5, duration: 0.3, ease: 'power2.out' });
+                        }
+                    }
+
+                    // Apply hover styling
+                    if (hasRing) ring.classList.add('bep-cursor-hover-active');
+                    if (hasDot) dot.classList.add('bep-cursor-hover-active');
+                });
+
+                el.addEventListener('mousemove', function (e) {
+                    if (!isSticky) return;
+                    var rect = el.getBoundingClientRect();
+                    var cx = rect.left + rect.width / 2;
+                    var cy = rect.top + rect.height / 2;
+
+                    // Soft offset: cursor drifts slightly toward mouse but stays anchored
+                    var offsetX = (e.clientX - cx) * 0.15;
+                    var offsetY = (e.clientY - cy) * 0.15;
+
+                    if (hasDot) {
+                        gsap.to(dot, { x: cx + offsetX, y: cy + offsetY, duration: 0.2, ease: 'power2.out', overwrite: 'auto' });
+                    }
+                    if (hasRing) {
+                        gsap.to(ring, { x: cx + offsetX * 0.6, y: cy + offsetY * 0.6, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+                    }
+                });
+
+                el.addEventListener('mouseleave', function (e) {
+                    isSticky = false;
+                    isHovering = false;
+
+                    // Return cursor to mouse position
+                    if (hasDot) {
+                        gsap.to(dot, { x: mouse.x, y: mouse.y, duration: 0.3, ease: 'power3.out', overwrite: 'auto' });
+                    }
+                    if (hasRing) {
+                        gsap.to(ring, { x: mouse.x, y: mouse.y, duration: 0.4, ease: 'power3.out', overwrite: 'auto' });
+                    }
+
+                    // Reset size
+                    if (isScaled) {
+                        resetCursorSize();
+                        isScaled = false;
+                    }
+
+                    // Remove hover styling
+                    if (hasRing) ring.classList.remove('bep-cursor-hover-active');
+                    if (hasDot) dot.classList.remove('bep-cursor-hover-active');
+                });
+            });
         }
 
         bindHoverTargets();
