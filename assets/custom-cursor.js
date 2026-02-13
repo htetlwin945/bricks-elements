@@ -521,9 +521,9 @@
                 el._bepLiquidBound = true;
 
                 el.addEventListener('mouseenter', function (e) {
-                    // Hide custom cursor
-                    if (hasDot) dot.classList.remove('bep-cursor-visible');
-                    if (hasRing) ring.classList.remove('bep-cursor-visible');
+                    // Shrink custom cursor instead of hiding instantly
+                    if (hasDot) gsap.to(dot, { scale: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
+                    if (hasRing) gsap.to(ring, { scale: 0, duration: 0.3, ease: 'power2.out', overwrite: true });
 
                     // Calculate entry point
                     var rect = el.getBoundingClientRect();
@@ -542,14 +542,18 @@
 
                     el.appendChild(fluid);
 
-                    // Calculate required scale to cover button (diagonal)
-                    var maxDim = Math.max(rect.width, rect.height);
-                    var radius = Math.sqrt(Math.pow(maxDim, 2) + Math.pow(maxDim, 2));
+                    // Calculate exact required radius to cover the furthest corner
+                    var distToTL = Math.hypot(x, y);
+                    var distToTR = Math.hypot(rect.width - x, y);
+                    var distToBL = Math.hypot(x, rect.height - y);
+                    var distToBR = Math.hypot(rect.width - x, rect.height - y);
+                    var radius = Math.max(distToTL, distToTR, distToBL, distToBR);
+                    var diameter = radius * 2;
 
                     // Animate expansion
                     gsap.fromTo(fluid,
-                        { scale: 0, opacity: 1 },
-                        { scale: 2.5, width: maxDim, height: maxDim, duration: 0.6, ease: 'power2.out' }
+                        { width: diameter, height: diameter, scale: 0, opacity: 1 },
+                        { scale: 1, duration: 0.5, ease: 'expo.out' }
                     );
 
                     // Change text color
@@ -562,10 +566,16 @@
                 });
 
                 el.addEventListener('mouseleave', function (e) {
-                    // Show custom cursor
+                    // Restore custom cursor size
                     if (shown) {
-                        if (hasDot) dot.classList.add('bep-cursor-visible');
-                        if (hasRing) ring.classList.add('bep-cursor-visible');
+                        if (hasDot) {
+                            gsap.to(dot, { scale: 1, duration: 0.3, ease: 'power2.out', overwrite: true });
+                            dot.classList.add('bep-cursor-visible');
+                        }
+                        if (hasRing) {
+                            gsap.to(ring, { scale: 1, duration: 0.3, ease: 'power2.out', overwrite: true });
+                            ring.classList.add('bep-cursor-visible');
+                        }
                     }
 
                     var fluid = el.querySelector('.bep-liquid-fill');
