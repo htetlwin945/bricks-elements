@@ -92,17 +92,26 @@ GSAP-powered custom cursor replacing the default browser cursor:
 
 **Effects:**
 - **Smooth Follow** — `gsap.quickTo()` with configurable speed/lag
+- **Sticky Magnetic** — Cursor stamps onto elements (buttons/links) and sticks (configurable size)
+- **Skew Effect** — Cursor stretches based on movement velocity (droplet effect)
 - **Hover Scale** — Cursor grows on links/buttons (configurable targets)
 - **Click Shrink** — Shrinks on click, elastic spring-back
 - **Mix Blend Mode** — `mix-blend-mode: difference` for color inversion
 - **Text Label** — Shows text inside cursor on hover
 - **Magnetic Pull** — Elements with `data-cursor-magnetic` move toward cursor
 - **Color Change** — Per-element color override
+- **Native Cursor Control** — Option to show/hide native cursor or restore it on specific elements
 
 **Per-Element Attributes:**
 ```html
 <!-- Custom text on hover -->
 <div data-cursor="text:Read More">...</div>
+
+<!-- Sticky Cursor (centers on element and resize to 80px) -->
+<button data-cursor-stick="80">Stick Me</button>
+
+<!-- Sticky Cursor (default size, usually fits content) -->
+<button data-cursor-stick>...</div>
 
 <!-- Custom color on hover -->
 <div data-cursor="color:#ff0000">...</div>
@@ -119,11 +128,25 @@ GSAP-powered custom cursor replacing the default browser cursor:
 <!-- Override blend mode for a section -->
 <section data-cursor-blend="exclusion">...</section>
 
-<!-- Hide cursor over this element -->
+<!-- Hide custom cursor & restore native cursor -->
 <div data-cursor-hide>No cursor here</div>
+
+<!-- Show native cursor alongside custom cursor -->
+<div data-cursor-native="show">...</div>
 ```
 
 **Auto-hidden on touch devices** via `@media (hover: none)`.
+
+### Dark Mode Image
+Displays different images for light and dark mode. Integrates with Core Framework's `.cf-theme-dark` class. Cross-fade transition between modes.
+**New:** Supports dynamic data tags (e.g. `{site_url}`) in the Link field.
+
+### Theme Toggle
+12 animated dark/light mode toggles from the [theme-toggles](https://toggles.dev/) library.
+**Features:**
+- Persists theme state (`bep-theme-dark`) to `localStorage` across reloads
+- Integrates with Core Framework `.cf-theme-dark`
+- Synced button state on load
 
 ## File Structure
 
