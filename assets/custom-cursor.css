@@ -47,6 +47,32 @@
     background: var(--cc-dot-hover-color);
 }
 
+/* == Liquid Button Hover Effect == */
+[data-cursor-liquid] {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    /* Creates stacking context: z-index -1 children sit above background but below text */
+    transition: color 0.3s ease;
+}
+
+/* Ensure children are relative just in case, but isolation handles the main stacking */
+[data-cursor-liquid]>* {
+    position: relative;
+    z-index: 1;
+}
+
+.bep-liquid-fill {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    /* Start centered so left/top targets center */
+    z-index: -1;
+}
+
 /* == Ring — direct child of <body> == */
 .bep-cursor-ring {
     position: fixed;

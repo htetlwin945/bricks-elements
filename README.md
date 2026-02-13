@@ -94,6 +94,7 @@ GSAP-powered custom cursor replacing the default browser cursor:
 - **Smooth Follow** — `gsap.quickTo()` with configurable speed/lag
 - **Sticky Magnetic** — Cursor stamps onto elements (buttons/links) and sticks (configurable size)
 - **Skew Effect** — Cursor stretches based on movement velocity (droplet effect)
+- **Liquid Fill** — Expanding circle fill from cursor entry point (changes bg/text color)
 - **Hover Scale** — Cursor grows on links/buttons (configurable targets)
 - **Click Shrink** — Shrinks on click, elastic spring-back
 - **Mix Blend Mode** — `mix-blend-mode: difference` for color inversion
@@ -104,6 +105,11 @@ GSAP-powered custom cursor replacing the default browser cursor:
 
 **Per-Element Attributes:**
 ```html
+<!-- Liquid Fill Effect -->
+<button data-cursor-liquid data-cursor-liquid-bg="#ff0000" data-cursor-liquid-text="#ffffff">
+    Liquid Button
+</button>
+
 <!-- Custom text on hover -->
 <div data-cursor="text:Read More">...</div>
 

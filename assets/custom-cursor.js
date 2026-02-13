@@ -513,6 +513,83 @@
                     // mousemove quickTo handler (isSticky is now false)
                 });
             });
+
+
+            // === Liquid Button Effect ===
+            document.querySelectorAll('[data-cursor-liquid]').forEach(function (el) {
+                if (el._bepLiquidBound) return;
+                el._bepLiquidBound = true;
+
+                el.addEventListener('mouseenter', function (e) {
+                    // Hide custom cursor
+                    if (hasDot) dot.classList.remove('bep-cursor-visible');
+                    if (hasRing) ring.classList.remove('bep-cursor-visible');
+
+                    // Calculate entry point
+                    var rect = el.getBoundingClientRect();
+                    var x = e.clientX - rect.left;
+                    var y = e.clientY - rect.top;
+
+                    // Create fluid element
+                    var fluid = document.createElement('span');
+                    fluid.classList.add('bep-liquid-fill');
+                    fluid.style.left = x + 'px';
+                    fluid.style.top = y + 'px';
+
+                    // Set color from attribute or default (black)
+                    var liquidBg = el.getAttribute('data-cursor-liquid-bg') || '#000';
+                    fluid.style.backgroundColor = liquidBg;
+
+                    el.appendChild(fluid);
+
+                    // Calculate required scale to cover button (diagonal)
+                    var maxDim = Math.max(rect.width, rect.height);
+                    var radius = Math.sqrt(Math.pow(maxDim, 2) + Math.pow(maxDim, 2));
+
+                    // Animate expansion
+                    gsap.fromTo(fluid,
+                        { scale: 0, opacity: 1 },
+                        { scale: 2.5, width: maxDim, height: maxDim, duration: 0.6, ease: 'power2.out' }
+                    );
+
+                    // Change text color
+                    var liquidText = el.getAttribute('data-cursor-liquid-text') || '#fff';
+                    if (liquidText) {
+                        // Store original color
+                        el._bepOriginalColor = el.style.color;
+                        gsap.to(el, { color: liquidText, duration: 0.3 });
+                    }
+                });
+
+                el.addEventListener('mouseleave', function (e) {
+                    // Show custom cursor
+                    if (shown) {
+                        if (hasDot) dot.classList.add('bep-cursor-visible');
+                        if (hasRing) ring.classList.add('bep-cursor-visible');
+                    }
+
+                    var fluid = el.querySelector('.bep-liquid-fill');
+                    if (fluid) {
+                        // Directional exit
+                        var rect = el.getBoundingClientRect();
+                        var x = e.clientX - rect.left;
+                        var y = e.clientY - rect.top;
+
+                        // Move to exit point and scale down/fade
+                        gsap.to(fluid, {
+                            left: x, top: y, scale: 0, opacity: 0, duration: 0.5, ease: 'power2.in',
+                            onComplete: function () { fluid.remove(); }
+                        });
+                    }
+
+                    // Revert text color
+                    gsap.to(el, {
+                        color: el._bepOriginalColor || '', duration: 0.3, onComplete: function () {
+                            el.style.color = el._bepOriginalColor || '';
+                        }
+                    });
+                });
+            });
         }
 
         bindHoverTargets();
