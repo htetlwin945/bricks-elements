@@ -3,7 +3,7 @@
  * Plugin Name: Bricks Elements Pack
  * Plugin URI: https://zeagwat.com
  * Description: Adds Particle Background, Animated Headline, Read More, Dark Mode Image, Timeline, Language Switcher, Theme Toggle, and Custom Cursor elements to Bricks Builder.
- * Version: 2.0.0
+ * Version: 2.0.5
  * Author: Zeagwat, Inc.
  * Author URI: https://zeagwat.com
  * Text Domain: bricks-elements-pack
@@ -32,13 +32,13 @@ add_action('init', function () {
     $elements = [
         'element-particle.php',
         'element-letter-launcher.php', // Animated Headline
-        'element-read-more.php',       // Read More
+        'element-read-more.php', // Read More
         'element-dark-mode-image.php', // Dark Mode Image
-        'element-timeline.php',        // Timeline (Parent)
-        'element-timeline-item.php',   // Timeline Item (Child)
+        'element-timeline.php', // Timeline (Parent)
+        'element-timeline-item.php', // Timeline Item (Child)
         'element-language-switcher.php', // Language Switcher
-        'element-theme-toggle.php',      // Theme Toggle
-        'element-custom-cursor.php',     // Custom Cursor
+        'element-theme-toggle.php', // Theme Toggle
+        'element-custom-cursor.php', // Custom Cursor
     ];
 
     foreach ($elements as $element) {
@@ -80,7 +80,8 @@ add_action('wp_enqueue_scripts', function () {
     wp_register_script('bricks-timeline-js', BRICKS_ELEMENTS_PACK_URL . 'assets/timeline.js', ['gsap', 'gsap-scrolltrigger'], '1.5.0', true);
 
     // Language Switcher
-    wp_register_style('bricks-language-switcher-css', BRICKS_ELEMENTS_PACK_URL . 'assets/language-switcher.css', [], '1.0.0');
+    wp_register_style('bricks-language-switcher-css', BRICKS_ELEMENTS_PACK_URL . 'assets/language-switcher.css', [], '1.0.5');
+    wp_register_script('bricks-language-switcher-js', BRICKS_ELEMENTS_PACK_URL . 'assets/language-switcher.js', ['gsap'], '1.0.5', true);
 
     // Theme Toggle
     wp_register_style('bricks-theme-toggle-css', BRICKS_ELEMENTS_PACK_URL . 'assets/theme-toggle.css', [], '1.0.0');

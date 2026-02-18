@@ -90,6 +90,11 @@ class Bricks_Language_Switcher_Element extends \Bricks\Element
             'title' => esc_html__('Dropdown', 'bricks-elements-pack'),
             'tab' => 'content',
         ];
+
+        $this->control_groups['loading'] = [
+            'title' => esc_html__('Loading Animation', 'bricks-elements-pack'),
+            'tab' => 'content',
+        ];
     }
 
     public function set_controls()
@@ -391,11 +396,59 @@ class Bricks_Language_Switcher_Element extends \Bricks\Element
             ],
             'required' => ['enableDropdown', '!=', ''],
         ];
+
+
+        // === Loading Animation Controls ===
+        $this->controls['loadingType'] = [
+            'tab' => 'content',
+            'group' => 'loading',
+            'label' => esc_html__('Animation Type', 'bricks-elements-pack'),
+            'type' => 'select',
+            'options' => [
+                'none' => esc_html__('None', 'bricks-elements-pack'),
+                'spinner' => esc_html__('Spinner', 'bricks-elements-pack'),
+                'flip' => esc_html__('Rotating Flag (3D)', 'bricks-elements-pack'),
+                'spin' => esc_html__('Spinning Flag (2D)', 'bricks-elements-pack'),
+                'overlay' => esc_html__('Full Page Overlay', 'bricks-elements-pack'),
+            ],
+            'default' => 'none',
+        ];
+
+        $this->controls['spinnerColor'] = [
+            'tab' => 'content',
+            'group' => 'loading',
+            'label' => esc_html__('Spinner Color', 'bricks-elements-pack'),
+            'type' => 'color',
+            'default' => '#0ea5e9',
+            'required' => ['loadingType', '!=', 'none'],
+            'css' => [
+                ['property' => '--ls-spinner-color', 'selector' => ''],
+            ],
+        ];
+
+        $this->controls['overlayColor'] = [
+            'tab' => 'content',
+            'group' => 'loading',
+            'label' => esc_html__('Overlay Color', 'bricks-elements-pack'),
+            'type' => 'color',
+            'default' => '#ffffff',
+            'required' => ['loadingType', '=', 'overlay'],
+        ];
+
+        $this->controls['loadingDuration'] = [
+            'tab' => 'content',
+            'group' => 'loading',
+            'label' => esc_html__('Animation Duration (s)', 'bricks-elements-pack'),
+            'type' => 'text',
+            'default' => '0.5',
+            'required' => ['loadingType', '!=', 'none'],
+        ];
     }
 
     public function enqueue_scripts()
     {
         wp_enqueue_style('bricks-language-switcher-css');
+        wp_enqueue_script('bricks-language-switcher-js');
     }
 
     /**
@@ -486,6 +539,18 @@ class Bricks_Language_Switcher_Element extends \Bricks\Element
             $this->set_attribute('_root', 'data-active-style', $active_indicator);
         }
 
+        // Pass loading config
+        $loading_type = $settings['loadingType'] ?? 'none';
+        if ($loading_type !== 'none') {
+            $config = [
+                'type' => $loading_type,
+                'spinnerColor' => !empty($settings['spinnerColor']) ? $settings['spinnerColor'] : '#0ea5e9',
+                'overlayColor' => !empty($settings['overlayColor']) ? $settings['overlayColor'] : '#ffffff',
+                'duration' => 0.5, // Duration no longer used for timing, but passed for overlay fade speed
+            ];
+            $this->set_attribute('_root', 'data-ls-config', wp_json_encode($config));
+        }
+
         echo '<div ' . $this->render_attributes('_root') . '>';
 
         // Find current language for dropdown trigger
@@ -502,7 +567,8 @@ class Bricks_Language_Switcher_Element extends \Bricks\Element
                 if (!$hide_current && !$enable_dropdown) {
                     $other_langs[] = $lang;
                 }
-            } else {
+            }
+            else {
                 $other_langs[] = $lang;
             }
         }
@@ -519,7 +585,8 @@ class Bricks_Language_Switcher_Element extends \Bricks\Element
                 $this->render_lang_item($lang, $settings, $show_flags, $show_names, $name_format, false);
             }
             echo '</div>';
-        } else {
+        }
+        else {
             // Inline mode
             if (!$hide_current && $current_lang) {
                 $this->render_lang_item($current_lang, $settings, $show_flags, $show_names, $name_format, true);
