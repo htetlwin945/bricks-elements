@@ -198,8 +198,12 @@
                 if (hasRing) {
                     gsap.to(ring, { width: ringBaseSize * scale, height: ringBaseSize * scale, duration: duration, ease: 'power2.out' });
                 }
-                if (hasDot && scale > 1) {
-                    gsap.to(dot, { width: dotBaseSize * 0.5, height: dotBaseSize * 0.5, duration: duration, ease: 'power2.out' });
+                if (hasDot) {
+                    if (scale === 0) {
+                        gsap.to(dot, { width: 0, height: 0, duration: duration, ease: 'power2.out' });
+                    } else if (scale > 1) {
+                        gsap.to(dot, { width: dotBaseSize * 0.5, height: dotBaseSize * 0.5, duration: duration, ease: 'power2.out' });
+                    }
                 }
             }
         }
@@ -232,7 +236,8 @@
                     if (key === 'color' && val) customColor = val;
                     if (key === 'scale') {
                         hasScaleKey = true;
-                        customScale = parseFloat(val) || hoverScale;
+                        var pVal = parseFloat(val);
+                        customScale = (!isNaN(pVal)) ? pVal : hoverScale;
                     }
                 });
             }

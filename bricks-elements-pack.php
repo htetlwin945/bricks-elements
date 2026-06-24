@@ -39,6 +39,7 @@ add_action('init', function () {
         'element-language-switcher.php', // Language Switcher
         'element-theme-toggle.php',      // Theme Toggle
         'element-custom-cursor.php',     // Custom Cursor
+        'element-creative-button.php',   // Creative Button
     ];
 
     foreach ($elements as $element) {
@@ -89,6 +90,10 @@ add_action('wp_enqueue_scripts', function () {
     // Custom Cursor
     wp_register_style('bricks-custom-cursor-css', BRICKS_ELEMENTS_PACK_URL . 'assets/custom-cursor.css', [], '2.4.2');
     wp_register_script('bricks-custom-cursor-js', BRICKS_ELEMENTS_PACK_URL . 'assets/custom-cursor.js', ['gsap'], '2.5.2', true);
+
+    // Creative Button
+    wp_register_style('bricks-creative-button-css', BRICKS_ELEMENTS_PACK_URL . 'assets/creative-button.css', [], '1.0.1');
+    wp_register_script('bricks-creative-button-js', BRICKS_ELEMENTS_PACK_URL . 'assets/creative-button.js', ['gsap'], '1.0.1', true);
 });
 
 /**
@@ -119,4 +124,9 @@ add_action('bricks/builder/enqueue_scripts', function () {
     // Timeline
     wp_enqueue_style('bricks-timeline-css');
     wp_enqueue_script('bricks-timeline-js');
+
+    // Creative Button
+    wp_enqueue_style('bricks-creative-button-css');
+    wp_enqueue_script('bricks-creative-button-js');
 });
+

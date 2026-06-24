@@ -1,0 +1,48 @@
+/**
+ * Creative Button Styles
+ */
+
+.bep-creative-button-wrapper {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.bep-creative-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    isolation: isolate;
+    /* Creates stacking context for fill */
+    cursor: pointer;
+    vertical-align: middle;
+    text-decoration: none;
+    line-height: 1.2;
+    transition: color 0.3s ease;
+    /* Fallback */
+    border: 1px solid transparent;
+    /* Default border */
+}
+
+/* Ensure text is above fill */
+.bep-creative-button .bep-btn-text {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Liquid Fill Element */
+.bep-cb-liquid-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background-color: var(--bep-liquid-bg, #000);
+    transform: translate(-50%, -50%);
+    /* Center on coordinate */
+    pointer-events: none;
+    z-index: 1;
+}
