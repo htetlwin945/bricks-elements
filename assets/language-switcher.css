@@ -61,15 +61,30 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    position: relative;
+    /* Added for loader */
+    overflow: visible;
+    /* Fix visibility issue! */
+    width: var(--ls-flag-size);
+    /* Enforce width on container */
+    height: var(--ls-flag-size);
+    /* Enforce height on container */
+    perspective: 1000px;
+    /* Enable 3D space */
 }
 
 .bep-lang-flag img {
-    width: var(--ls-flag-size);
-    height: var(--ls-flag-size);
+    width: 100%;
+    /* Fill container */
+    height: 100%;
+    /* Fill container */
     border-radius: var(--ls-flag-radius);
     border: var(--ls-flag-border);
     object-fit: cover;
     display: block;
+    transition: opacity 0.2s ease;
+    transform-style: preserve-3d;
+    /* Key for flip */
 }
 
 /* == Name == */
@@ -183,4 +198,37 @@
     border: 1px solid #ffc107;
     border-radius: 6px;
     font-size: 13px;
+}
+
+/* == Loading Animation == */
+
+/* Spinner Animation */
+.bep-ls-spinner {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border-style: solid;
+    border-width: 2px;
+    border-color: transparent;
+    border-top-color: var(--ls-spinner-color, #0ea5e9);
+    border-right-color: var(--ls-spinner-color, #0ea5e9);
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Overlay Animation */
+.bep-ls-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999999;
+    pointer-events: all;
+    opacity: 0;
 }
