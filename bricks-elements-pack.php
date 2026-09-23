@@ -3,7 +3,7 @@
  * Plugin Name: Bricks Elements Pack
  * Plugin URI: https://zeagwat.com
  * Description: Adds Particle Background, Animated Headline, Read More, Dark Mode Image, Timeline, Language Switcher, Theme Toggle, and Custom Cursor elements to Bricks Builder.
- * Version: 2.0.5
+ * Version: 2.1.0
  * Author: Zeagwat, Inc.
  * Author URI: https://zeagwat.com
  * Text Domain: bricks-elements-pack
@@ -31,6 +31,7 @@ add_action('init', function () {
 
     $elements = [
         'element-particle.php',
+        'element-particle-logo-gather.php',
         'element-letter-launcher.php', // Animated Headline
         'element-read-more.php', // Read More
         'element-dark-mode-image.php', // Dark Mode Image
@@ -57,6 +58,15 @@ add_action('wp_enqueue_scripts', function () {
     wp_register_script('particles-js', BRICKS_ELEMENTS_PACK_URL . 'assets/particles.min.js', [], '2.0.0', true);
     wp_register_script('bricks-particle-init', BRICKS_ELEMENTS_PACK_URL . 'assets/script.js', ['particles-js'], '1.0.0', true);
     wp_register_style('bricks-particle-css', BRICKS_ELEMENTS_PACK_URL . 'assets/main.css', [], '1.0.0');
+
+    // Particle Logo Gather (standalone canvas element)
+    wp_register_script('bricks-particle-logo-gather-js', BRICKS_ELEMENTS_PACK_URL . 'assets/particle-logo-gather.js', [], '1.0.9', true);
+    wp_register_style('bricks-particle-logo-gather-css', BRICKS_ELEMENTS_PACK_URL . 'assets/particle-logo-gather.css', [], '1.0.9');
+
+    if (!function_exists('bricks_is_frontend') || bricks_is_frontend()) {
+        wp_enqueue_script('bricks-particle-logo-gather-js');
+        wp_enqueue_style('bricks-particle-logo-gather-css');
+    }
 
     // GSAP Core + Plugins (jsDelivr CDN - v3.14.1)
     wp_register_script('gsap', 'https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js', [], '3.14.1', true);
@@ -100,6 +110,10 @@ add_action('bricks/builder/enqueue_scripts', function () {
     wp_enqueue_script('particles-js');
     wp_enqueue_script('bricks-particle-init');
     wp_enqueue_style('bricks-particle-css');
+
+    // Particle Logo Gather
+    wp_enqueue_script('bricks-particle-logo-gather-js');
+    wp_enqueue_style('bricks-particle-logo-gather-css');
 
     // GSAP + Plugins
     wp_enqueue_script('gsap');

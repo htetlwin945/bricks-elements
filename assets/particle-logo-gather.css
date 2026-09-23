@@ -1,0 +1,9 @@
+.plg-particle-logo-gather { position:relative; overflow:hidden; isolation:isolate; }
+.plg-particle-logo-gather > .plg-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; }
+.plg-particle-logo-gather > .plg-content { position:relative; z-index:1; }
+.plg-particle-logo-gather > .plg-fallback { position:absolute; z-index:0; top:50%; left:50%; max-width:var(--plg-logo-fallback-size,var(--plg-logo-scale,70%)); max-height:var(--plg-logo-fallback-size,var(--plg-logo-scale,70%)); transform:translate(-50%,-50%); object-fit:contain; opacity:0; pointer-events:none; transition:opacity .35s ease; }
+.plg-particle-logo-gather.plg-fallback-visible > .plg-fallback { opacity:1; }
+.plg-particle-logo-gather.plg-breakpoint-disabled > .plg-fallback { opacity:0 !important; visibility:hidden; }
+.plg-particle-logo-gather.plg-active > .plg-canvas { opacity:1; }
+.plg-particle-logo-gather.plg-reduced > .plg-canvas { opacity:1; }
+@media (prefers-reduced-motion: reduce) { .plg-particle-logo-gather > .plg-fallback { transition:none; } }

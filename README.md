@@ -9,6 +9,7 @@ A collection of custom elements for [Bricks Builder](https://bricksbuilder.io/) 
 | Element | Description |
 |---------|-------------|
 | **Particle Background** | Interactive particle.js backgrounds with configurable density, colors, links, and interactivity |
+| **Particle Logo Gather** | Same-particle logo gather and release effect with JSON-style scatter/interactions and responsive controls |
 | **Animated Headline** | GSAP-powered text animations with multiple effects (typing, rotating, sliding, clip, etc.) |
 | **Letter Launcher** | Scatter and reassemble letter animations using GSAP and SplitText |
 | **Read More** | Expandable content sections with smooth height animation |
@@ -161,6 +162,7 @@ bricks-elements-pack/
 ├── bricks-elements-pack.php     # Main plugin file
 ├── includes/
 │   ├── element-particle.php     # Particle Background
+│   ├── element-particle-logo-gather.php # Particle Logo Gather
 │   ├── element-animated-headline.php
 │   ├── element-letter-launcher.php
 │   ├── element-read-more.php
@@ -176,6 +178,8 @@ bricks-elements-pack/
 │   ├── particles.min.js
 │   ├── script.js                # Particle init
 │   ├── main.css                 # Particle styles
+│   ├── particle-logo-gather.js  # Particle Logo Gather runtime
+│   ├── particle-logo-gather.css # Particle Logo Gather styles
 │   ├── animated-headline.js
 │   ├── animated-headline.css
 │   ├── letter-launcher.js
